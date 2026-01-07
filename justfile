@@ -1,5 +1,9 @@
 # Warenkorb+ Chrome Extension
 
+# list all just commands
+help:
+    @just --list
+
 # Create zip package for Chrome Web Store
 package:
     rm -f warenkorb_plus.zip
