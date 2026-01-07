@@ -17,7 +17,6 @@ Alle Daten werden **lokal auf Ihrem Gerät** im Chrome-Browserspeicher gespeiche
 | Berechtigung | Verwendungszweck |
 |--------------|------------------|
 | `storage` | Speichern Ihrer Einkaufsliste und Einstellungen lokal |
-| `activeTab` | Interaktion mit Cookidoo, Knuspr und REWE Webseiten |
 
 ## Datenweitergabe
 
@@ -49,7 +48,6 @@ All data is stored **locally on your device** in Chrome's browser storage. **No 
 | Permission | Purpose |
 |------------|---------|
 | `storage` | Store your shopping list and settings locally |
-| `activeTab` | Interact with Cookidoo, Knuspr, and REWE websites |
 
 ## Data sharing
 
