@@ -31,6 +31,7 @@ test-report:
 
 # Create zip package for Chrome Web Store
 package:
-    rm -f warenkorb_plus.zip
-    zip -r warenkorb_plus.zip . -x "*.git*" -x ".DS_Store" -x "README.md" -x "PRIVACY.md" -x "justfile" -x "warenkorb_plus.zip" -x ".claude/*" -x "tests/*" -x "playwright.config.js" -x "package.json" -x "package-lock.json" -x "node_modules/*" -x "playwright-report/*" -x "test-results/*"
-    @echo "Created warenkorb_plus.zip"
+    rm -rf dist
+    mkdir -p dist
+    cd extension && zip -r ../dist/warenkorb_plus.zip . -x "*.DS_Store"
+    @echo "Created dist/warenkorb_plus.zip"
