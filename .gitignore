@@ -1,2 +1,13 @@
 .DS_Store
 *.zip
+
+# Node.js
+node_modules/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Build output
+dist/
