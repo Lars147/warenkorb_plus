@@ -32,7 +32,7 @@ const test = base.extend({
    * Create a browser context with the extension loaded
    */
   context: async ({}, use) => {
-    const extensionPath = path.resolve(__dirname, '..');
+    const extensionPath = path.resolve(__dirname, '..', 'extension');
 
     // Launch Chrome with the extension
     const context = await chromium.launchPersistentContext('', {

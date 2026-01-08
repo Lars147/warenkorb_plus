@@ -17,7 +17,7 @@ Eine Chrome Extension, die deine Cookidoo-Einkaufsliste direkt in Knuspr / Rewe 
 1. Öffne Chrome und gehe zu `chrome://extensions/`
 2. Aktiviere oben rechts den **Entwicklermodus**
 3. Klicke auf **"Entpackte Erweiterung laden"**
-4. Wähle den Ordner `warenkorb` aus
+4. Wähle den Ordner `extension/` aus
 
 ### Schritt 2: Einkaufsliste exportieren
 
