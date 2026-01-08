@@ -9,8 +9,8 @@ const path = require('path');
 module.exports = defineConfig({
   testDir: './tests',
 
-  // Run tests serially for extension testing stability
-  fullyParallel: false,
+  // Run test files in parallel
+  fullyParallel: true,
 
   // Fail the build on CI if you accidentally left test.only in the source code
   forbidOnly: !!process.env.CI,
@@ -18,8 +18,7 @@ module.exports = defineConfig({
   // Retry on failure
   retries: 1,
 
-  // Use 1 worker for extension testing stability
-  workers: 1,
+  workers: 4,
 
   // Reporter to use
   reporter: 'html',
