@@ -41,14 +41,6 @@ const test = base.extend({
         `--disable-extensions-except=${extensionPath}`,
         `--load-extension=${extensionPath}`,
         '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-gpu',
-        // Minimize focus stealing on macOS
-        '--no-first-run',
-        '--no-default-browser-check',
-        '--disable-infobars',
-        '--window-position=2000,0', // Position off-screen to the right
-        '--window-size=800,600',
       ],
     });
 
