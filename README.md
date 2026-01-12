@@ -3,7 +3,7 @@
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Install-green?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/kjgdjddfhgoeemlfgadcmipgfdojffbd)
 [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Install-orange?logo=firefox&logoColor=white)](https://addons.mozilla.org/de/firefox/addon/warenkorb-plus/)
 
-Eine Chrome Extension, die deine Cookidoo-Einkaufsliste direkt in Knuspr / Rewe nutzbar macht.
+Eine Browser-Extension für Chrome und Firefox, die deine Cookidoo-Einkaufsliste direkt in Knuspr / Rewe nutzbar macht.
 
 ## ✨ Features
 
@@ -15,12 +15,28 @@ Eine Chrome Extension, die deine Cookidoo-Einkaufsliste direkt in Knuspr / Rewe 
 
 ## 📦 Installation
 
-### Schritt 1: Extension laden
+### Option 1: Aus dem Store installieren (empfohlen)
 
+**Chrome:**
+1. Öffne den [Chrome Web Store](https://chromewebstore.google.com/detail/kjgdjddfhgoeemlfgadcmipgfdojffbd)
+2. Klicke auf **"Hinzufügen"**
+
+**Firefox:**
+1. Öffne [Firefox Add-ons](https://addons.mozilla.org/de/firefox/addon/warenkorb-plus/)
+2. Klicke auf **"Zu Firefox hinzufügen"**
+
+### Option 2: Manuell installieren (für Entwickler)
+
+**Chrome:**
 1. Öffne Chrome und gehe zu `chrome://extensions/`
 2. Aktiviere oben rechts den **Entwicklermodus**
 3. Klicke auf **"Entpackte Erweiterung laden"**
 4. Wähle den Ordner `extension/` aus
+
+**Firefox:**
+1. Öffne Firefox und gehe zu `about:debugging#/runtime/this-firefox`
+2. Klicke auf **"Temporäres Add-on laden..."**
+3. Wähle die Datei `extension/manifest.json` aus
 
 ### Schritt 2: Einkaufsliste exportieren
 
@@ -56,6 +72,7 @@ Cookidoo                          Knuspr / REWE
 
 ## 🔧 Technische Details
 
+- **Browser**: Chrome & Firefox
 - **Manifest Version**: 3
 - **Permissions**: `storage` (zum Speichern der Liste)
 - **Unterstützte Seiten**:
@@ -79,6 +96,10 @@ Cookidoo                          Knuspr / REWE
 - Der jeweilige Shop muss eingeloggt sein für volle Funktionalität
 
 ## 📝 Changelog
+
+### v2.0.0
+- Firefox Add-ons Unterstützung
+- Cross-Browser Kompatibilität
 
 ### v1.0.0
 - Initiale Version
