@@ -1,5 +1,8 @@
 # 🛒 Warenkorb+
 
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-Install-green?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/kjgdjddfhgoeemlfgadcmipgfdojffbd)
+[![Firefox Add-ons](https://img.shields.io/badge/Firefox-Install-orange?logo=firefox&logoColor=white)](https://addons.mozilla.org/de/firefox/addon/warenkorb-plus/)
+
 Eine Chrome Extension, die deine Cookidoo-Einkaufsliste direkt in Knuspr / Rewe nutzbar macht.
 
 ## ✨ Features
