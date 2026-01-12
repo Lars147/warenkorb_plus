@@ -5,24 +5,11 @@ const chromium = playwright.chromium;
 const path = require('path');
 
 /**
- * Helper to get extension ID from service workers
+ * Fixed extension ID derived from the public key in manifest.json
+ * This matches the Chrome Web Store extension ID
+ * See: https://developer.chrome.com/docs/extensions/how-to/test/end-to-end-testing#set-extension-id
  */
-async function getExtensionId(context, timeout = 10000) {
-  const serviceWorkers = context.serviceWorkers();
-  if (serviceWorkers.length > 0) {
-    return serviceWorkers[0].url().split('/')[2];
-  }
-
-  // Wait for service worker with timeout
-  const sw = await Promise.race([
-    context.waitForEvent('serviceworker'),
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Timeout waiting for service worker')), timeout)
-    ),
-  ]);
-
-  return sw.url().split('/')[2];
-}
+const EXTENSION_ID = 'kjgdjddfhgoeemlfgadcmipgfdojffbd';
 
 /**
  * Custom test fixture that launches Chrome with the Warenkorb+ extension loaded
@@ -55,11 +42,9 @@ const test = base.extend({
    * Get the extension's popup page
    */
   extensionPopup: async ({ context }, use) => {
-    const extensionId = await getExtensionId(context);
-
     // Create a page for the popup
     const popupPage = await context.newPage();
-    await popupPage.goto(`chrome-extension://${extensionId}/popup.html`);
+    await popupPage.goto(`chrome-extension://${EXTENSION_ID}/popup.html`);
     await popupPage.waitForLoadState('domcontentloaded');
 
     await use(popupPage);
@@ -68,9 +53,8 @@ const test = base.extend({
   /**
    * Get the extension ID
    */
-  extensionId: async ({ context }, use) => {
-    const extensionId = await getExtensionId(context);
-    await use(extensionId);
+  extensionId: async ({}, use) => {
+    await use(EXTENSION_ID);
   },
 });
 

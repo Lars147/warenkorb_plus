@@ -1,6 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Warenkorb+",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwMg+UEZsvhbv9sgC8L1DNcjVOpBSQ3cC36ScwQiX+aLLQYQ6wMWSx/+IluvIfJDw6OlSI4PgDqJEIsmnP3drNM4zjrwosjaoK8+PL0/SYuu6mM+Wi7HQBtTgN4qf60TwXH+NbnPk8KL6Cq6Q6iIQGnRW4QOoNLS5VCBqHWplV7k15OC/C+/aYLsYmazeG9bD2gW/SpaetJhqulwr1iWFUmTJs1jdwtka45hGfQXns+OB+XYNgzesb6v8ZXE+oXes0rXrvbwUCFWT6NN37NAOK10UOAcOBhESZDo9s7HIhaqmznpkUF5SlH1YOruMBUrbco5Moh8fa4s2vcmcsVHuvQIDAQAB",
   "version": "2.0.0",
   "description": "Importiere deine Cookidoo-Einkaufsliste in Knuspr, REWE und andere Online-Supermärkte",
   "icons": {
@@ -51,9 +52,6 @@
       "css": ["styles/sidebar.css"]
     }
   ],
-  "background": {
-    "service_worker": "background.js"
-  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
