@@ -1,0 +1,22 @@
+{
+  "name": "warenkorb_plus",
+  "version": "1.0.0",
+  "description": "Eine Chrome Extension, die deine Cookidoo-Einkaufsliste direkt in Knuspr / Rewe nutzbar macht.",
+  "main": "popup.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:53817/git/Lars147/warenkorb_plus"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
+  }
+}

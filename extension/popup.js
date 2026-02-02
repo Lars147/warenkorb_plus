@@ -1,5 +1,22 @@
 // popup.js
 
+// Show popup error message
+function showPopupError(message) {
+  var errorEl = document.getElementById('popup-error');
+  if (!errorEl) {
+    errorEl = document.createElement('div');
+    errorEl.id = 'popup-error';
+    errorEl.className = 'popup-error';
+    var container = document.querySelector('.popup-content');
+    if (container) {
+      container.insertBefore(errorEl, container.firstChild);
+    }
+  }
+  errorEl.textContent = message;
+  errorEl.style.display = 'block';
+  setTimeout(function() { errorEl.style.display = 'none'; }, 5000);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   var siteSelect = document.getElementById('site-select');
   var groceryLink = document.getElementById('open-grocery');
@@ -7,6 +24,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Load current settings
   chrome.storage.local.get(['cookidooList', 'lastUpdated', 'autoSortByUnitPrice', 'selectedSite'], function(result) {
+    // Check for storage error
+    if (chrome.runtime.lastError) {
+      console.error('[Warenkorb] Popup load error:', chrome.runtime.lastError.message);
+      showPopupError('Einstellungen konnten nicht geladen werden');
+      // Use defaults
+      document.getElementById('auto-sort').checked = false;
+      siteSelect.value = 'knuspr';
+      updateGroceryLink('knuspr');
+      document.getElementById('item-count').textContent = '?';
+      document.getElementById('last-updated').textContent = 'Laden fehlgeschlagen';
+      return;
+    }
+
     // Auto-sort setting
     document.getElementById('auto-sort').checked = Boolean(result.autoSortByUnitPrice);
 
@@ -33,8 +63,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // Site selection change
   siteSelect.addEventListener('change', function(e) {
     var siteId = e.target.value;
-    chrome.storage.local.set({ selectedSite: siteId });
-    updateGroceryLink(siteId);
+    chrome.storage.local.set({ selectedSite: siteId }, function() {
+      if (chrome.runtime.lastError) {
+        console.error('[Warenkorb] Save site error:', chrome.runtime.lastError.message);
+        showPopupError('Einstellung konnte nicht gespeichert werden');
+        return;
+      }
+      updateGroceryLink(siteId);
+    });
   });
 
   // Update grocery link based on selected site
@@ -55,6 +91,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // Confirm Yes - clear the list
   document.getElementById('confirm-yes').addEventListener('click', function() {
     chrome.storage.local.remove(['cookidooList', 'lastUpdated'], function() {
+      if (chrome.runtime.lastError) {
+        console.error('[Warenkorb] Clear error:', chrome.runtime.lastError.message);
+        showPopupError('Liste konnte nicht gelöscht werden');
+        document.getElementById('confirm-dialog').style.display = 'none';
+        document.getElementById('clear-btn').style.display = 'flex';
+        return;
+      }
       document.getElementById('item-count').textContent = '0';
       document.getElementById('last-updated').textContent = 'Liste gelöscht';
       document.getElementById('confirm-dialog').style.display = 'none';
@@ -70,7 +113,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Auto-sort toggle
   document.getElementById('auto-sort').addEventListener('change', function(e) {
-    chrome.storage.local.set({ autoSortByUnitPrice: e.target.checked });
+    var checkbox = e.target;
+    var newValue = checkbox.checked;
+    chrome.storage.local.set({ autoSortByUnitPrice: newValue }, function() {
+      if (chrome.runtime.lastError) {
+        console.error('[Warenkorb] Save auto-sort error:', chrome.runtime.lastError.message);
+        showPopupError('Einstellung konnte nicht gespeichert werden');
+        // Revert checkbox state
+        checkbox.checked = !newValue;
+      }
+    });
   });
 });
 
