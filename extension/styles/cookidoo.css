@@ -75,6 +75,10 @@
   background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
 }
 
+.grocery-notification--error {
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+}
+
 .grocery-notification__icon {
   font-size: 18px;
 }

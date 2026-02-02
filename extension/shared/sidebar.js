@@ -48,14 +48,20 @@
     // Load shopping list from storage
     loadList: function() {
       var self = this;
-      GroceryStorage.loadShoppingList(function(list, lastUpdated) {
+      GroceryStorage.loadShoppingList(function(error, list, lastUpdated) {
+        if (error) {
+          console.error('[Warenkorb] Failed to load list:', error.raw);
+          GroceryUtils.showError('load');
+          return;
+        }
         if (list && list.length > 0) {
           shoppingList = list;
           console.log('[Warenkorb] Liste geladen:', shoppingList.length, 'Items');
           self.updateToggleButton();
 
           // Only auto-open if user hasn't explicitly closed it
-          GroceryStorage.getSidebarClosed(function(closed) {
+          GroceryStorage.getSidebarClosed(function(err, closed) {
+            // Ignore error for non-critical setting, use default (not closed)
             if (!closed && !sidebarVisible) {
               self.show();
             }
@@ -67,8 +73,9 @@
     // Load auto-sort setting
     loadAutoSortSetting: function() {
       var self = this;
-      GroceryStorage.getAutoSort(function(enabled) {
-        autoSortByUnitPrice = enabled;
+      GroceryStorage.getAutoSort(function(error, enabled) {
+        // Ignore error for non-critical setting, use default (false)
+        autoSortByUnitPrice = error ? false : enabled;
         if (autoSortByUnitPrice && currentSite.isSearchPage(window.location)) {
           self.ensureAutoSort();
         }
@@ -299,25 +306,45 @@
       }
     },
 
-    // Check item
+    // Check item (with rollback on save failure)
     checkItem: function(itemId) {
       var index = shoppingList.findIndex(function(i) { return i.id === itemId; });
-      if (index !== -1) {
-        shoppingList[index].checked = true;
-        this.saveAndRefresh();
-      }
+      if (index === -1) return;
+
+      var previousState = shoppingList[index].checked;
+      shoppingList[index].checked = true;
+
+      var self = this;
+      GroceryStorage.saveShoppingList(shoppingList, function(error) {
+        if (error) {
+          // Rollback on failure
+          shoppingList[index].checked = previousState;
+          GroceryUtils.showError(error.type);
+        }
+        self.refresh();
+      });
     },
 
-    // Uncheck item
+    // Uncheck item (with rollback on save failure)
     uncheckItem: function(itemId) {
       var index = shoppingList.findIndex(function(i) { return i.id === itemId; });
-      if (index !== -1) {
-        shoppingList[index].checked = false;
-        this.saveAndRefresh();
-      }
+      if (index === -1) return;
+
+      var previousState = shoppingList[index].checked;
+      shoppingList[index].checked = false;
+
+      var self = this;
+      GroceryStorage.saveShoppingList(shoppingList, function(error) {
+        if (error) {
+          // Rollback on failure
+          shoppingList[index].checked = previousState;
+          GroceryUtils.showError(error.type);
+        }
+        self.refresh();
+      });
     },
 
-    // Delete item with undo support
+    // Delete item with undo support (with rollback on save failure)
     deleteItem: function(itemId) {
       var index = shoppingList.findIndex(function(i) { return i.id === itemId; });
       if (index === -1) return;
@@ -325,17 +352,29 @@
       var item = shoppingList[index];
       shoppingList.splice(index, 1);
 
-      var timeout = setTimeout(function() {
-        deletedItems = deletedItems.filter(function(d) { return d.item.id !== item.id; });
-        window.GrocerySidebar.updateUndoToast();
-      }, UNDO_TIMEOUT);
+      var self = this;
+      GroceryStorage.saveShoppingList(shoppingList, function(error) {
+        if (error) {
+          // Rollback: re-insert the deleted item
+          shoppingList.splice(index, 0, item);
+          GroceryUtils.showError(error.type);
+          self.refresh();
+          return;
+        }
 
-      deletedItems.push({ item: item, index: index, timeout: timeout });
-      this.saveAndRefresh();
-      this.showUndoToast();
+        // Only set up undo if save succeeded
+        var timeout = setTimeout(function() {
+          deletedItems = deletedItems.filter(function(d) { return d.item.id !== item.id; });
+          window.GrocerySidebar.updateUndoToast();
+        }, UNDO_TIMEOUT);
+
+        deletedItems.push({ item: item, index: index, timeout: timeout });
+        self.refresh();
+        self.showUndoToast();
+      });
     },
 
-    // Undo last delete
+    // Undo last delete (with rollback on save failure)
     undoDelete: function() {
       if (deletedItems.length === 0) return;
 
@@ -343,8 +382,18 @@
       clearTimeout(last.timeout);
       var insertIndex = Math.min(last.index, shoppingList.length);
       shoppingList.splice(insertIndex, 0, last.item);
-      this.saveAndRefresh();
-      this.updateUndoToast();
+
+      var self = this;
+      GroceryStorage.saveShoppingList(shoppingList, function(error) {
+        if (error) {
+          // Rollback: remove the restored item and put it back in deletedItems
+          shoppingList.splice(insertIndex, 1);
+          deletedItems.push(last);
+          GroceryUtils.showError(error.type);
+        }
+        self.refresh();
+        self.updateUndoToast();
+      });
     },
 
     // Show undo toast
@@ -367,7 +416,7 @@
       }
     },
 
-    // Add new item
+    // Add new item (with rollback on save failure)
     addItem: function(name) {
       var trimmed = name.trim();
       if (!trimmed) return;
@@ -379,7 +428,16 @@
         checked: false
       };
       shoppingList.unshift(newItem);
-      this.saveAndRefresh();
+
+      var self = this;
+      GroceryStorage.saveShoppingList(shoppingList, function(error) {
+        if (error) {
+          // Rollback: remove the added item
+          shoppingList.shift();
+          GroceryUtils.showError(error.type);
+        }
+        self.refresh();
+      });
     },
 
     // Start inline edit
@@ -421,7 +479,7 @@
         if (saved) return;
         saved = true;
         editingItemId = null;
-        self.saveAndRefresh();
+        self.refresh(); // Just refresh UI, no save needed on cancel
       };
 
       input.addEventListener('blur', save);
@@ -431,20 +489,35 @@
       });
     },
 
-    // Save edited item
+    // Save edited item (with rollback on save failure)
     saveEdit: function(itemId, newName) {
       var index = shoppingList.findIndex(function(i) { return i.id === itemId; });
       if (index === -1) {
-        this.saveAndRefresh();
+        this.refresh();
         return;
       }
 
       var trimmed = newName.trim();
-      if (trimmed) {
-        shoppingList[index].name = trimmed;
-        shoppingList[index].originalName = trimmed;
+      if (!trimmed) {
+        this.refresh();
+        return;
       }
-      this.saveAndRefresh();
+
+      var previousName = shoppingList[index].name;
+      var previousOriginalName = shoppingList[index].originalName;
+      shoppingList[index].name = trimmed;
+      shoppingList[index].originalName = trimmed;
+
+      var self = this;
+      GroceryStorage.saveShoppingList(shoppingList, function(error) {
+        if (error) {
+          // Rollback: restore previous name
+          shoppingList[index].name = previousName;
+          shoppingList[index].originalName = previousOriginalName;
+          GroceryUtils.showError(error.type);
+        }
+        self.refresh();
+      });
     },
 
     // Search for a specific item
@@ -490,14 +563,6 @@
       if (el) el.classList.add('gs-item--active');
     },
 
-    // Save list and refresh UI
-    saveAndRefresh: function() {
-      var self = this;
-      GroceryStorage.saveShoppingList(shoppingList, function() {
-        self.refresh();
-      });
-    },
-
     // Refresh sidebar UI
     refresh: function() {
       var sidebar = document.getElementById('grocery-sidebar');
@@ -508,12 +573,19 @@
       this.updateToggleButton();
     },
 
-    // Clear list
+    // Clear list (with rollback on failure)
     clearList: function() {
       if (confirm('M\u00F6chtest du die gesamte Liste wirklich l\u00F6schen?')) {
+        var previousList = shoppingList.slice(); // Clone for rollback
         shoppingList = [];
+
         var self = this;
-        GroceryStorage.clearShoppingList(function() {
+        GroceryStorage.clearShoppingList(function(error) {
+          if (error) {
+            // Rollback: restore previous list
+            shoppingList = previousList;
+            GroceryUtils.showError('clear');
+          }
           self.refresh();
         });
       }

@@ -41,8 +41,9 @@
     },
 
     // Show a toast notification
-    showNotification: function(message, type) {
+    showNotification: function(message, type, duration) {
       type = type || 'info';
+      duration = duration || (type === 'error' ? 6000 : 4000);
 
       // Remove old notifications
       document.querySelectorAll('.grocery-notification').forEach(function(n) { n.remove(); });
@@ -50,7 +51,8 @@
       var icons = {
         success: '\u2713',
         warning: '\u26A0',
-        info: '\u2139'
+        info: '\u2139',
+        error: '\u2717'
       };
 
       var notification = document.createElement('div');
@@ -62,12 +64,34 @@
       document.body.appendChild(notification);
 
       // Animation
-      var self = this;
       setTimeout(function() { notification.classList.add('grocery-notification--visible'); }, 10);
       setTimeout(function() {
         notification.classList.remove('grocery-notification--visible');
         setTimeout(function() { notification.remove(); }, 300);
-      }, 4000);
+      }, duration);
+    },
+
+    // Show user-friendly error notification with German messages
+    showError: function(errorType) {
+      var messages = {
+        'save': 'Speichern fehlgeschlagen',
+        'load': 'Laden fehlgeschlagen',
+        'clear': 'Löschen fehlgeschlagen',
+        'export': 'Export fehlgeschlagen',
+        'quota': 'Speichern fehlgeschlagen'
+      };
+      var reasons = {
+        'quota': 'Speicherplatz voll (max. 10 MB)',
+        'save': 'Bitte versuche es erneut',
+        'load': 'Bitte versuche es erneut',
+        'clear': 'Bitte versuche es erneut',
+        'export': 'Bitte versuche es erneut'
+      };
+
+      var msg = messages[errorType] || 'Fehler aufgetreten';
+      var hint = reasons[errorType] || 'Bitte versuche es erneut';
+
+      this.showNotification(msg + ': ' + hint, 'error');
     },
 
     // Clean ingredient name for search (removes quantities, units, parentheses)

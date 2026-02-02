@@ -155,16 +155,22 @@
       return;
     }
 
-    GroceryStorage.saveShoppingList(items, function() {
-      GroceryStorage.getSelectedSite(function(siteId) {
-        var site = window.GrocerySites[siteId];
+    GroceryStorage.saveShoppingList(items, function(error) {
+      if (error) {
+        GroceryUtils.showError(error.type);
+        return;
+      }
+
+      GroceryStorage.getSelectedSite(function(err, siteId) {
+        // Ignore error for site retrieval, use default
+        var site = window.GrocerySites[siteId || 'knuspr'];
         var siteName = site?.name || 'Grocery';
         GroceryUtils.showNotification(items.length + ' Zutaten exportiert! Offne jetzt ' + siteName, 'success');
 
         // Offer to open target site
         setTimeout(function() {
           if (site && confirm('Mochtest du ' + siteName + ' jetzt offnen?')) {
-            window.open(site.homeUrl, '_blank');
+            window.open(site.homeUrl, '_blank', 'noopener');
           }
         }, 1000);
       });
